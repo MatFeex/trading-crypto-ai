@@ -1,142 +1,41 @@
-# QUANTCONNECT.COM - Democratizing Finance, Empowering Individuals.
-# Lean Algorithmic Trading Engine v2.0. Copyright 2014 QuantConnect Corporation.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 from AlgorithmImports import *
-
-from keras.models import *
-from tensorflow import keras
-from keras.layers import Dense, Activation
-from keras.optimizers import SGD
+from keras.models import Sequential
+import json
 import numpy as np
 
-from QuantConnect.DataSource import *
-from QuantConnect.Data.UniverseSelection import *
-from QuantConnect.Data.Market import *
 
-class KerasNeuralNetworkAlgorithm(QCAlgorithm):
+class SmoothSkyBlueMosquito(QCAlgorithm):
 
     def Initialize(self):
-        self.SetStartDate(2019, 1, 1)   # Set Start Date
-        self.SetEndDate(2020, 4, 1)     # Set End Date
-        self.SetCash(100000)            # Set Strategy Cash
+        self.SetStartDate(2018, 1, 1)  # Set Start Date
+        self.SetEndDate(2020, 1, 1)  # Set Start Date
+        
+        # Get model
+        model_key = 'bitcoin_price_predictor'
+        if self.ObjectStore.ContainsKey(model_key):
+            model_str = self.ObjectStore.Read(model_key)
+            config = json.loads(model_str)['config']
+            self.model = Sequential.from_config(config)
 
-        # Binance accepts both Cash and Margin account types only.
-        self.SetBrokerageModel(BrokerageName.Binance, AccountType.Cash)
-
-        self.symbol = self.AddCrypto("BTCBUSD", Resolution.Minute, Market.Binance).Symbol
-        self.SetWarmUp(50)
-
-
-        for ticker in ["BTCBUSD"]:
-            symbol = self.AddCrypto(ticker, Resolution.Daily).Symbol
-
-            # Read the model saved in the ObjectStore
-            for kvp in self.ObjectStore:
-                key = f'{symbol}_model'
-                if not key == kvp.Key or kvp.Value is None:
-                    continue
-                filePath = self.ObjectStore.GetFilePath(kvp.Key)
-                self.modelBySymbol[symbol] = keras.models.load_model(filePath)
-                self.Debug(f'Model for {symbol} sucessfully retrieved. File {filePath}. Size {kvp.Value.Length}. Weights {self.modelBySymbol[symbol].get_weights()}')
-
-        # Look-back period for training set
-        self.lookback = 30
-
-        # Train Neural Network every monday
-        self.Train(
-            self.DateRules.Every(DayOfWeek.Monday),
-            self.TimeRules.AfterMarketOpen("BTCBUSD"),
-            self.NeuralNetworkTraining)
-
-        # Place trades on Monday, 30 minutes after the market is open
-        self.Schedule.On(
-            self.DateRules.EveryDay("BTCBUSD"),
-            self.TimeRules.AfterMarketOpen("BTCBUSD", 30),
-            self.Trade)
+        self.SetCash(100000)  # Set Strategy Cash
+        self.SetBrokerageModel(BrokerageName.Bitfinex, AccountType.Margin)  # Crypto brokerage
+        self.symbol = self.AddCrypto("BTCUSD", Resolution.Daily).Symbol
+        self.SetBenchmark(self.symbol) # to compare the strategy with just holding bitcoin
 
 
-    def OnEndOfAlgorithm(self):
-        ''' Save the data and the mode using the ObjectStore '''
-        for symbol, model in self.modelBySymbol.items():
-            key = f'{symbol}_model'
-            file = self.ObjectStore.GetFilePath(key)
-            model.save(file)
-            self.ObjectStore.Save(key)
-            self.Debug(f'Model for {symbol} sucessfully saved in the ObjectStore')
+    def OnData(self, data):
+        if self.GetPrediction() == "Bullish":  self.SetHoldings(self.symbol, 1)
+        else: self.SetHoldings(self.symbol, -0.5)
+    
+    def GetPrediction(self):
 
+        # instead of history requests, use rolling window for more efficiency
+        df = self.History(self.symbol, 40).loc[self.symbol]
+        df_change = df[["close", "open", "high", "low", "volume"]].pct_change().dropna()
+        model_input = []
 
-    def NeuralNetworkTraining(self):
-        '''Train the Neural Network and save the model in the ObjectStore'''
-        symbols = self.Securities.keys()
-
-        # Daily historical data is used to train the machine learning model
-        history = self.History(symbols, self.lookback + 1, Resolution.Daily)
-        history = history.open.unstack(0)
-
-        for symbol in symbols:
-            if symbol not in history:
-                continue
-
-            predictor = history[symbol][:-1]
-            predictand = history[symbol][1:]
-
-            # build a neural network from the 1st layer to the last layer
-            model = Sequential()
-
-            model.add(Dense(10, input_dim = 1))
-            model.add(Activation('relu'))
-            model.add(Dense(1))
-
-            sgd = SGD(lr = 0.01)   # learning rate = 0.01
-
-            # choose loss function and optimizing method
-            model.compile(loss='mse', optimizer=sgd)
-
-            # pick an iteration number large enough for convergence
-            for step in range(200):
-                # training the model
-                cost = model.train_on_batch(predictor, predictand)
-
-            self.modelBySymbol[symbol] = model
-
-    def Trade(self):
-        '''
-        Predict the price using the trained model and out-of-sample data
-        Enter or exit positions based on relationship of the open price of the current bar and the prices defined by the machine learning model.
-        Liquidate if the open price is below the sell price and buy if the open price is above the buy price
-        '''
-        target = 1 / len(self.Securities)
-
-        for symbol, model in self.modelBySymbol.items():
-
-            # Get the out-of-sample history
-            history = self.History(symbol, self.lookback, Resolution.Daily)
-            history = history.open.unstack(0)[symbol]
-
-            # Get the final predicted price
-            prediction = model.predict(history)[0][-1]
-            historyStd = np.std(history)
-
-            holding = self.Portfolio[symbol]
-            openPrice = self.CurrentSlice[symbol].Open
-
-            # Follow the trend
-            if holding.Invested:
-                if openPrice < prediction - historyStd:
-                    self.Liquidate(symbol)
-            else:
-                if openPrice > prediction + historyStd:
-                    self.SetHoldings(symbol, target)
-
-
-
+        # turn history into right input format for model
+        for index, row in df_change.tail(30).iterrows(): model_input.append(np.array(row))
+        model_input = np.array([model_input])
+        if round(self.model.predict(model_input)[0][0]) == 1: return "Bullish"
+        else: return "Bearish"

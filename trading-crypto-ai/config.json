@@ -4,5 +4,6 @@
     "description": "",
     "local-id": 228565053,
     "cloud-id": 14197627,
-    "organization-id": "68fa34d36f716fa5f275f76fb8f69152"
+    "organization-id": "68fa34d36f716fa5f275f76fb8f69152",
+    "python-venv": 1
 }
