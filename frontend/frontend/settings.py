@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-&t#lg4ztzd9@hhzu)gj(oqc+0xuvz!$#d^r!4tvj0ncz&hop56
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [*]
 
 AUTH_USER_MODEL = 'bot.User'
 
