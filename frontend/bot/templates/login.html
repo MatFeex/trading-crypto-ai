@@ -1,0 +1,37 @@
+{% extends 'main.html' %}
+{% block content %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+<center>
+<fieldset style="max-width: 20em;">
+    <legend class="texte"> Inscription </legend>
+
+    <form class="form" action="" method="POST">
+        {% csrf_token %}
+        
+        <fieldset>
+            <legend class="texte"> Login </legend>
+            <container2>
+                <div class=element2>
+                    <div class="texte3">
+                        Email :
+                    </div>
+                    <input name="email" type="text" size="20" id="Bo" placeholder="username@email.com"/>
+                </div>
+                <div class="element2">
+                    <div class="texte3">
+                        Password :
+                    </div>
+                    <input name="password" type="text" size="20" id="Ha" placeholder="***" />
+                </div>
+            </container2>
+        </fieldset>            
+       
+
+        <br>
+        <button class="btn btn--main" type="submit">Submit</button>
+    </form>
+
+</fieldset> </center>
+{% endblock content%}

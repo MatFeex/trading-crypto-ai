@@ -1,0 +1,63 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text / html / charset=utf-8" />
+    <link rel="stylesheet" type="text/css" title="design" href="Exercice_4_css.css" />
+    <title> site de trading </title>
+    <style>
+    </style>
+</head>
+
+<body>
+    <div id="epf">
+        <img class="logo" src="image/epf_logo_new.png" alt="logo epf" />
+    </div>
+    <br>
+    <div id="menu">
+        <a href="siteTrading.html">Home</a>
+        <div class="menu-separator"></div>
+        <a href="loginPage.html">Login</a>
+        <div class="menu-separator"></div>
+        <a href="incriptionPage.html">Inscription</a>
+        <div class="menu-separator"></div>
+    </div>
+    <br>
+    <div class="image_italie_position">
+        <img class="image_italie_size" name="Italie paysage" src="image/bot.JPG" alt="Italie" width="400"
+            border="1px solid" />
+    </div>
+    <br>
+    <br>
+        <fieldset>
+            <legend class="texte"> Cours du marché BTCUSDT </legend>
+            <br>
+            <div class="tradingview-widget-container">
+                <script src="https://s3.tradingview.com/tv.js"></script>
+                <script>
+                new TradingView.widget(
+                {
+                  "width": 980,
+                  "height": 610,
+                  "symbol": "BINANCE:BTCUSDT",
+                  "interval": "60",
+                  "timezone": "Etc/UTC",
+                  "theme": "light",
+                  "style": "1",
+                  "locale": "en",
+                  "toolbar_bg": "#f1f3f6",
+                  "enable_publishing": false,
+                  "withdateranges": true,
+                  "hide_side_toolbar": false,
+                  "allow_symbol_change": true,
+                  "show_popup_button": true,
+                  "popup_width": "1000",
+                  "popup_height": "650",
+                  "no_referral_id": true
+                }
+                );
+                </script>
+              </div>
+              
+        </fieldset>
+</body>
+
+</html>

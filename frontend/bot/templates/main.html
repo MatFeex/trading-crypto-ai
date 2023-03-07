@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <meta name="keywords" content="EPF">
+        <meta name="description" content="Website TP1">
+        <meta name="author" content="Mathieu Fresson">
+
+        <title>IA crypto - bot</title>
+        <link rel="icon" type="image/png" sizes="16x16" href="">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
+
+        <!-- Import FontAwesome Icon -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    </head>
+    <body>
+
+        <div class="navbar">
+            <div class="container">
+                <nav>
+                    <ul class="first-nav">
+                        <li><a class="home" href="{% url 'home' %}"><i class="fa-solid fa-house"></i></a></li>
+                        <li><a class="brd-l" href="{% url 'login' %}">Login</a></li>
+                        <li><a class="brd-l" href="{% url 'register' %}">Register</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        {% block content %}
+    
+
+        {% endblock %}
+    </body>
+</html>

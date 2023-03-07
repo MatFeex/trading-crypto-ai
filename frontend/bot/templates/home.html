@@ -1,0 +1,50 @@
+
+{% extends 'main.html' %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" type="text/css" title="design" href="{% static 'css/loginPage.css' %}" />
+<style>
+    .first-nav{
+        min-width: 100%;
+    }
+</style>
+<div class="image_italie_position">
+    <img class="image_italie_size" name="Italie paysage" src="{% static 'img/bot.JPG' %}" alt="Italie" width="400"
+        border="1px solid" />
+</div>
+<br>
+<br>
+<fieldset>
+    <legend class="texte"> Cours du marché BTCUSDT </legend>
+    <br>
+    <div class="tradingview-widget-container">
+        <script src="https://s3.tradingview.com/tv.js"></script>
+        <script>
+        new TradingView.widget(
+        {
+            "width": 980,
+            "height": 610,
+            "symbol": "BINANCE:BTCUSDT",
+            "interval": "60",
+            "timezone": "Etc/UTC",
+            "theme": "light",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "withdateranges": true,
+            "hide_side_toolbar": false,
+            "allow_symbol_change": true,
+            "show_popup_button": true,
+            "popup_width": "1000",
+            "popup_height": "650",
+            "no_referral_id": true
+        }
+        );
+        </script>
+        </div>
+        
+</fieldset>
+
+{% endblock content%}
