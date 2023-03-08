@@ -15,19 +15,21 @@ def home(request):
 def register_user(request): 
 
     if request.method == 'POST':
-          
+        
         user = User.objects.create(
-            username = request.POST['username'],
+            name = request.POST['name'],
+            username = request.POST['pseudo'],
             password= request.POST['password'],
             email=request.POST['email'],
             api_key=request.POST['key'],
             api_secret=request.POST['secret'],
             cash=request.POST['cash'],
+            active = True if request.POST['active'] == 'on' else False
         )
         user.set_password(request.POST['password'])
-        login(request,user)
+        user.save()
+        login(request, user)
         return redirect('trades')
-    
     return render(request,'register.html')
 
 def logout_user(request):
