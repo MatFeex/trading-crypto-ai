@@ -28,7 +28,7 @@ class Trade(models.Model):
     closed_at = models.DateTimeField()
 
     class Meta :
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
     def __str__(self):
         return str(self.id)

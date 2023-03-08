@@ -1,0 +1,51 @@
+{% extends 'main.html' %}
+{% block content %}
+{% load static %}
+
+<link href="{% static 'css/style.css' %}" rel="stylesheet" />
+
+<button class="Button"><a href="{% url 'login' %}" style="color: inherit; text-decoration: none;">Logout</a></button>
+<center>
+    <h1>{{request.user.name}}</h1>
+    <h1 style="font-size: 1em; margin-top: -1em;">#{{request.user.username}}</h1>
+</center>
+<h2 id="bot">Binance Trading Bot - AI predictions</h2>
+<h2>Machine Learning</h2>
+<center>
+    <hr />
+    <h1>Trades</h1>
+</center>
+<h2>Profits Totaux: ${{profits}}</h2>
+<br>
+<center>
+    <table style="width: 100%; text-align: center;">
+        <thead>
+            <tr>
+                <th colspan="1">#</th>
+                <th colspan="1">SIDE</th>
+                <th colspan="1">PRICE</th>
+                <th colspan="1">QUANTITY</th>
+                <th colspan="1">AMOUT</th>
+                <th colspan="1">PROFIT</th>
+                <th colspan="1">CREATED_AT</th>
+                <th colspan="1">CLOSED_AT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trade in trades %}
+            <tr>
+                <td>{{trade.id}}</td>
+                <td>{{trade.side}}</td>
+                <td>{{trade.price}}</td>
+                <td>{{trade.quantity}}</td>
+                <td>{{trade.amount}}</td>
+                <td>{{trade.profit}}</td>
+                <td>{{trade.created_at}}</td>
+                <td>{% if trade.closed_at != trade.created_at %}{{trade.closed_at}}{% else %}NA{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</center>
+
+{% endblock content%}

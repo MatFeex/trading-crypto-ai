@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from .forms import UserFormCustom
-from .models import User
+from .models import User, Trade
 
 
 
@@ -30,7 +30,9 @@ def register_user(request):
     
     return render(request,'register.html')
 
-
+def logout_user(request):
+    logout(request, request.user)
+    return redirect('login') 
 
 def login_user(request):
 
@@ -42,6 +44,12 @@ def login_user(request):
         user = authenticate(request, email=email, password=password)
         if user != None :
             login(request, user)
-            # return redirect('trades')
+            return redirect('trades')
         else : return redirect('home')
     return render(request,'login.html')
+
+def read_trades(request):
+    trades = Trade.objects.filter(user = request.user)
+    profits = sum(trades.values_list('profit', flat = True))
+    context = {'profits' : profits, 'trades' : trades}
+    return render(request, 'trades.html', context)
